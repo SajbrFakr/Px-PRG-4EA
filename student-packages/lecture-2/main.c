@@ -30,7 +30,7 @@ int main()
     // Infinite loop
     while (1)
     {
-        sleep_ms(100);
+        sleep_ms(200);
     }
     return 0;
 }

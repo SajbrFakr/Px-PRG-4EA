@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#define LED_PIN 6
-#define BUTTON_PIN 20
+#define BUTTONd 20
+#define BUTTONe 21
 
 void handler(uint gpio, uint32_t events);
 
@@ -18,24 +18,31 @@ int main()
     printf("Starting...\n");
 
     // Initialize GPIO pins
-    gpio_init(LED_PIN);
-    gpio_set_dir(LED_PIN, GPIO_OUT);
+    gpio_init(BUTTONd);
+    gpio_set_dir(BUTTONd, GPIO_OUT);
 
-    gpio_init(BUTTON_PIN);
-    gpio_set_dir(BUTTON_PIN, GPIO_IN);
+    gpio_init(BUTTONe);
+    gpio_set_dir(BUTTONe, GPIO_IN);
 
     // Enable interrupts for button pin
-    gpio_set_irq_enabled_with_callback(BUTTON_PIN, GPIO_IRQ_EDGE_RISE, true, &handler);
+    gpio_set_irq_enabled_with_callback(BUTTONd, GPIO_IRQ_EDGE_RISE, true, &handler);
+    gpio_set_irq_enabled_with_callback(BUTTONe, GPIO_IRQ_EDGE_RISE, true, &handler);
 
-    // Infinite loop
-    while (1)
-    {
-        sleep_ms(200);
+    // Initialize variables
+    int counter = 0;
+    int lastCounter = counter;
+
+    // Printing counter state if there is a change
+    if(lastCounter != counter){
+        printf(\ncounter);
     }
+
     return 0;
 }
 
 void handler(uint gpio, uint32_t events)
 {
-    gpio_put(LED_PIN, !gpio_get(LED_PIN));
+    gpio_put(gpio, counter--);
+    gpio_put(gpio, counter++);
+    lastCounter = counter;
 }

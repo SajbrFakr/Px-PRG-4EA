@@ -42,7 +42,7 @@ int main()
 
 void handler(uint gpio, uint32_t events)
 {
-    gpio_put(gpio, counter--);
-    gpio_put(gpio, counter++);
+    if(gpio == BUTTONd) counter--;
+    if(gpio == BUTTONe) counter++;
     lastCounter = counter;
 }

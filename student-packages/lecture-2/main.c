@@ -1,5 +1,6 @@
 // Pico SDK libraries
 #include "pico/stdlib.h"
+#include "pico/time.h"
 
 // Standard libraries
 #include <stdio.h>

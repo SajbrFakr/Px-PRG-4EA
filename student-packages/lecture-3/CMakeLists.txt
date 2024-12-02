@@ -1,5 +1,5 @@
 # Set the project name
-set(NAME lec1)
+set(NAME lec3)
 
 # Add the main executable and its source files
 add_executable(${NAME}

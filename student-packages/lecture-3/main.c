@@ -1,16 +1,21 @@
-// Pico SDK libraries
 #include "pico/stdlib.h"
+#include "hardware/pwm.h"
 
-// Standard libraries
-#include <stdio.h>
+int main() {
 
-int main()
-{
-    // Initialize all standard I/O
-    stdio_init_all();
-    // Wait for serial monitor to reconnect
-    sleep_ms(2000);
-    printf("Starting...\n");
+    // Tell GPIO 0 and 1 they are allocated to the PWM
+    gpio_set_function(0, GPIO_FUNC_PWM);
+    gpio_set_function(1, GPIO_FUNC_PWM);
 
-    return 0;
+    // Find out which PWM slice is connected to GPIO 0 (it's slice 0)
+    uint slice_num = pwm_gpio_to_slice_num(0);
+
+    // Set period of 4 cycles (0 to 3 inclusive)
+    pwm_set_wrap(slice_num, 3);
+    // Set channel A output high for one cycle before dropping
+    pwm_set_chan_level(slice_num, PWM_CHAN_A, 1);
+    // Set initial B output high for three cycles before dropping
+    pwm_set_chan_level(slice_num, PWM_CHAN_B, 3);
+    // Set the PWM running
+    pwm_set_enabled(slice_num, true);
 }

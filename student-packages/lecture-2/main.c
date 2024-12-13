@@ -13,6 +13,7 @@ void handler(uint gpio, uint32_t events);
 int counter = 0;
 int lastCounter = 0;
 int delayTime = 20;
+unsigned long time = 0;
 
 int main()
 {
@@ -42,7 +43,7 @@ int main()
             lastCounter = counter;
         }
         
-        unsigned long time = to_ms_since_boot(get_absolute_time());
+        time = to_ms_since_boot(get_absolute_time());
     }
 
     return 0;

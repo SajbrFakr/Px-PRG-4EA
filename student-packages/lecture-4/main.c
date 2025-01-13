@@ -10,7 +10,7 @@ uint16_t map_value(uint16_t value, uint16_t in_min, uint16_t in_max,
     return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-int maint(){
+int main(){
     adc_init();
     adc_gpio_init(26);  // Initialize GPIO26 for ADC use
     adc_select_input(0); // Select ADC0 input
@@ -28,5 +28,5 @@ int maint(){
     uint16_t result = adc_read();
 
     result = map_value(result, 0, 4095, 0, 255);
-    pwm_set_gpio_level(LED, result)
+    pwm_set_gpio_level(LED, result);
 }

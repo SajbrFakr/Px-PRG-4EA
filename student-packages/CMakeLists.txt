@@ -6,3 +6,6 @@ foreach(src_dir ${SRCS_DIRS})
         add_subdirectory(${src_dir})
     endif()
 endforeach()
+
+add_subdirectory(test1-morse-code)
+add_subdirectory(myHeaderFile)

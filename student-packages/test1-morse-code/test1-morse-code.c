@@ -1,5 +1,11 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
+#include "hardware/pwm.h"
+#include "hardware/gpio.h"
+#include "hardware/adc.h"
+#include "pico/time.h"
+#include <ctype.h>
+
 // TODO: Include necessary libraries
 
 // TODO: Define your pin configuration
@@ -15,6 +21,11 @@
 #define LETTER_SPACE (DOT_DURATION * 3)
 #define WORD_SPACE (DOT_DURATION * 7)
 #define MAX_INPUT 100
+#define LED 15
+
+uint16_t pot_result = 0;
+unsigned long time = 0;
+char morse_char = ' ';
 
 // Morse code lookup table (DO NOT MODIFY)
 const char *MORSE_CODE[] = {
@@ -56,6 +67,10 @@ void display_dash(void);
 void display_character(char c);
 bool read_line(char *buffer, int max_length);
 void clear_input_buffer(void);
+uint16_t map_value(uint16_t value, uint16_t in_min, uint16_t in_max, 
+                   uint16_t out_min, uint16_t out_max) {
+    return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
 
 int main()
 {
@@ -81,7 +96,19 @@ int main()
 
             for (int i = 0; input[i] != '\0'; i++)
             {
-                display_character(input[i]);
+                char abc = (char)toupper(input[i]);
+                display_character(abc);
+                if (morse_char == '.') {
+                    display_dot();
+                    sleep_ms(LETTER_SPACE);
+                } else if (morse_char == '-')
+                {
+                    display_dash();
+                    sleep_ms(LETTER_SPACE);
+                } else if (morse_char == ' ') {
+                    sleep_ms(WORD_SPACE);
+                }
+                
             }
 
             printf("\nConversion complete!\n\n");
@@ -104,6 +131,17 @@ void init_pwm(void)
     // 3. Configure PWM slice with appropriate frequency
     // 4. Set appropriate wrap value for desired resolution
     // 5. Enable PWM
+
+    gpio_init(LED);
+    gpio_set_dir(LED, GPIO_OUT);
+    gpio_set_function(LED, GPIO_FUNC_PWM);
+
+    uint slice_num = pwm_gpio_to_slice_num(LED);
+    pwm_config config = pwm_get_default_config();
+    pwm_config_set_wrap(&config, 1000);
+    pwm_config_set_clkdiv(&config, 125);
+
+    pwm_init(slice_num, &config, true);
 }
 
 // TODO: Implement ADC initialization
@@ -115,6 +153,10 @@ void init_adc(void)
     // 2. Initialize ADC hardware
     // 3. Set up GPIO for ADC
     // 4. Select correct ADC input channel
+
+    adc_init();
+    adc_gpio_init(26);  
+    adc_select_input(0);
 }
 
 // TODO: Implement potentiometer reading
@@ -125,6 +167,10 @@ uint16_t read_brightness(void)
     // 1. Read ADC value
     // 2. Scale from ADC range (0-4095) to your chosen PWM range
     // 3. Return scaled value
+
+    pot_result = adc_read();
+
+    pot_result = map_value(pot_result, 0, 4095, 0, 255);    
     return 0;
 }
 
@@ -134,6 +180,8 @@ void set_led_brightness(uint16_t brightness)
 {
     // Your implementation here:
     // Set PWM duty cycle based on brightness value
+
+    pwm_set_gpio_level(LED, pot_result);    
 }
 
 // TODO: Implement Morse code dot
@@ -145,6 +193,12 @@ void display_dot(void)
     // 3. Wait for dot duration
     // 4. Turn LED off
     // 5. Wait for symbol space
+
+    set_led_brightness(read_brightness());
+
+    time = to_ms_since_boot(get_absolute_time());
+    if (to_ms_since_boot(get_absolute_time()) - time <= DOT_DURATION)
+    pwm_set_gpio_level(LED, 0);  
 }
 
 // TODO: Implement Morse code dash
@@ -156,6 +210,12 @@ void display_dash(void)
     // 3. Wait for dash duration
     // 4. Turn LED off
     // 5. Wait for symbol space
+
+    set_led_brightness(read_brightness());
+
+    time = to_ms_since_boot(get_absolute_time());
+    if (to_ms_since_boot(get_absolute_time()) - time <= DASH_DURATION)
+    pwm_set_gpio_level(LED, 0); 
 }
 
 // TODO: Implement character display function
@@ -167,10 +227,12 @@ void display_character(char c)
     // 2. Convert lowercase letters to uppercase
     // 3. Verify character is a valid letter (A-Z)
     // 4. Get morse code pattern from MORSE_CODE array
-    char *pattern = MORSE_CODE[c - 'A'];
+    const char *pattern = MORSE_CODE[c - 'A'];
     printf("%s ", pattern); // Sample code to print morse code pattern
     // 5. Display pattern using display_dot and display_dash
     // 6. Add appropriate letter space after each character
+
+    morse_char = pattern;
 }
 
 // Function to clear input buffer (DO NOT MODIFY)

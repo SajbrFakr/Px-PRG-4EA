@@ -23,43 +23,41 @@ if (EXISTS ${picoVscode})
     include(${picoVscode})
 endif()
 # ====================================================================================
-set(PICO_BOARD pico_w CACHE STRING "Board type")
+set(PICO_BOARD pico CACHE STRING "Board type")
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
 
-project(lecture-4 C CXX ASM)
+project(PROJECT_REGULATION C CXX ASM)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(lecture-4 lecture-4.c )
+add_executable(PROJECT_REGULATION src/main.c src/AS5600.c utils/src/utils.c)
 
-pico_set_program_name(lecture-4 "lecture-4")
-pico_set_program_version(lecture-4 "0.1")
+pico_set_program_name(PROJECT_REGULATION "PROJECT_REGULATION")
+pico_set_program_version(PROJECT_REGULATION "0.1")
 
 # Modify the below lines to enable/disable output over UART/USB
-pico_enable_stdio_uart(lecture-4 0)
-pico_enable_stdio_usb(lecture-4 1)
+pico_enable_stdio_uart(PROJECT_REGULATION 0)
+pico_enable_stdio_usb(PROJECT_REGULATION 1)
 
 # Add the standard library to the build
-target_link_libraries(lecture-4
-        pico_stdlib
-        hardware_pwm
-        hardware_adc
-        )
+target_link_libraries(PROJECT_REGULATION
+        pico_stdlib)
 
 # Add the standard include files to the build
-target_include_directories(lecture-4 PRIVATE
-  ${CMAKE_CURRENT_LIST_DIR}
+target_include_directories(PROJECT_REGULATION PRIVATE
+        ${CMAKE_CURRENT_LIST_DIR}/include
+        ${CMAKE_CURRENT_LIST_DIR}/utils/include
 )
 
 # Add any user requested libraries
-target_link_libraries(lecture-4 
-        
+target_link_libraries(PROJECT_REGULATION 
+        hardware_i2c
         )
 
-pico_add_extra_outputs(lecture-4)
+pico_add_extra_outputs(PROJECT_REGULATION)
 

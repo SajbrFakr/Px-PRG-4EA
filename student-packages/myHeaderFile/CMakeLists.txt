@@ -3,8 +3,11 @@ set(NAME myHeaderFile)
 
 # Add the main executable and its source files
 add_executable(${NAME}
-        main.c
+        src/main.c
+        src/sum.c
 )
+
+target_include_directories(${NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include)
 
 # Link the standard library and hardware libraries to the executable
 target_link_libraries(${NAME}
